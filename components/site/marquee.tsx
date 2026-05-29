@@ -1,59 +1,54 @@
+/**
+ * Brand marquee — used between sections on the homepage.
+ * Direct port of CCD v1's <Marquee>.
+ */
 import { cn } from "@/lib/utils";
 
-interface MarqueeProps {
-  items: string[];
-  className?: string;
-  variant?: "default" | "yellow" | "pink" | "blue" | "lime" | "orange";
-  size?: "sm" | "md" | "lg";
-  reverse?: boolean;
-}
+const defaultItems = [
+  "DANCE MUSIC 🎧",
+  "PET CULTURE 🐾",
+  "STREETWEAR 👕",
+  "EXPERIENCES 🪩",
+  "DROPS 💎",
+  "COMMUNITY ✨",
+];
 
-const variantClasses: Record<NonNullable<MarqueeProps["variant"]>, string> = {
-  default: "bg-ink text-cream",
-  yellow: "bg-acid-yellow text-ink",
-  pink: "bg-hot-pink text-cream",
-  blue: "bg-electric-blue text-cream",
-  lime: "bg-lime text-ink",
-  orange: "bg-orange text-ink",
-};
-
-const sizeClasses: Record<NonNullable<MarqueeProps["size"]>, string> = {
-  sm: "text-base md:text-lg py-2",
-  md: "text-2xl md:text-3xl py-3",
-  lg: "text-4xl md:text-6xl py-4",
-};
+type Size = "lg" | "sm";
 
 export function Marquee({
+  bg = "bg-acid-yellow",
+  reverse = false,
+  size = "sm",
   items,
   className,
-  variant = "default",
-  size = "md",
-  reverse = false,
-}: MarqueeProps) {
-  // Duplicate so the loop is seamless.
-  const rendered = [...items, ...items];
+}: {
+  bg?: string;
+  reverse?: boolean;
+  size?: Size;
+  items?: string[];
+  className?: string;
+}) {
+  const list = items && items.length ? items : defaultItems;
+  // Triple-loop for seamless animation across very wide viewports.
+  const loop = [...list, ...list, ...list];
+  const isLg = size === "lg";
+  const padding = isLg ? "py-2 md:py-4" : "py-1.5 md:py-2.5";
+  const text = isLg ? "text-2xl md:text-5xl" : "text-base md:text-2xl";
+  const gap = isLg ? "gap-8 md:gap-12" : "gap-6 md:gap-10";
+
   return (
-    <div
-      className={cn(
-        "relative overflow-hidden border-y-2 border-ink",
-        variantClasses[variant],
-        sizeClasses[size],
-        className
-      )}
-    >
+    <div className={cn(bg, "border-y-4 border-ink overflow-hidden", padding, className)}>
       <div
         className={cn(
-          "flex w-max whitespace-nowrap font-display uppercase",
-          reverse ? "marquee" : "marquee"
+          "flex whitespace-nowrap marquee",
+          gap,
+          reverse && "[animation-direction:reverse]"
         )}
-        style={reverse ? { animationDirection: "reverse" } : undefined}
       >
-        {rendered.map((item, i) => (
-          <span key={i} className="px-6 inline-flex items-center gap-6">
-            {item}
-            <span aria-hidden className="opacity-60">
-              ✦
-            </span>
+        {loop.map((t, i) => (
+          <span key={i} className={cn("font-display text-ink flex items-center", text, gap)}>
+            {t}
+            <span className="text-magenta">★</span>
           </span>
         ))}
       </div>

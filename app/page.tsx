@@ -1,103 +1,145 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+/**
+ * Homepage — direct port of CCD v1's Index.tsx composition.
+ *
+ * Pass 1 (this commit) ports the spine: Nav, Hero, identity strip, CityMarquee,
+ * marquee strips, About, EventsStrip, Footer. Dynamic data (next-event urgency
+ * strip + events strip) lives in async RSC islands wrapped in <Suspense> so
+ * the static shell prerenders cleanly with Cache Components.
+ *
+ * Pass 2 will add: Catbot, MoonwalkCat, DiscoBall + Lasers, SectionDots,
+ * SectionReveal wrapper, EarlyAccess, Contact, platform stats strip.
+ *
+ * Pass 3 will add: CcdxSocialHomeStrip, Videos, Playlist, Drops, Instagram,
+ * GenreWheel, ArtistSpotlight, SceneSnapshot.
+ */
+import { Suspense } from "react";
+import { buildMetadata, JsonLd, organizationSchema, websiteSchema } from "@/lib/seo";
+import { Nav } from "@/components/site/nav";
+import { Hero } from "@/components/site/hero";
+import { HeroUrgencyStrip } from "@/components/site/hero-urgency-strip";
+import { CityMarquee } from "@/components/site/city-marquee";
 import { Marquee } from "@/components/site/marquee";
+import { About } from "@/components/site/about";
+import { HomeEventsIsland } from "@/components/site/home-events-island";
+import { EventsStripSkeleton } from "@/components/site/events-strip-skeleton";
+import { Footer } from "@/components/site/footer";
+
+export const metadata = buildMetadata({
+  title: "Cats Can Dance — India's Underground Electronic Music Scene",
+  description:
+    "Discover India's underground electronic music scene. Events in Bengaluru, Mumbai, Delhi & Goa. Artist directory, genre guides, global scene origins and limited apparel drops.",
+  path: "/",
+  keywords: [
+    "india electronic music",
+    "bangalore underground",
+    "mumbai techno",
+    "delhi house",
+    "goa trance",
+    "electronic music india",
+    "cats can dance",
+    "jungle drum bass india",
+  ],
+});
+
+const HOMEPAGE_FAQ = [
+  {
+    "@type": "Question",
+    name: "What is Cats Can Dance?",
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: "Cats Can Dance is a Bengaluru-based underground dance music event series and streetwear collective, hosting House, Disco, Jungle, Garage, and Drum & Bass nights across Bengaluru venues, and producing limited-edition streetwear drops rooted in dance music culture.",
+    },
+  },
+  {
+    "@type": "Question",
+    name: "Where does Cats Can Dance host events in Bangalore?",
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: "Cats Can Dance hosts RSVP-only underground dance music episodes at venues across Bengaluru. All upcoming events are listed at catscandance.com/events.",
+    },
+  },
+  {
+    "@type": "Question",
+    name: "What music genres does Cats Can Dance play?",
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: "Cats Can Dance events feature House, Disco, Jungle, Garage, and Drum & Bass — underground dance music genres curated by resident and guest selectors in Bengaluru.",
+    },
+  },
+  {
+    "@type": "Question",
+    name: "Does Cats Can Dance sell streetwear?",
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: "Yes. Cats Can Dance produces limited-edition streetwear drops rooted in underground dance music culture, screen-printed in Bangalore. Available at catscandance.com/shop.",
+    },
+  },
+  {
+    "@type": "Question",
+    name: "How do I RSVP to a Cats Can Dance event?",
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: "RSVP to upcoming Cats Can Dance events at catscandance.com/events. Capacity is limited — RSVP early. Most episodes are free entry with name on the door.",
+    },
+  },
+];
 
 export default function HomePage() {
   return (
-    <main>
-      {/* HERO ──────────────────────────────────────────────────────────── */}
-      <section className="relative px-4 md:px-8 pt-12 pb-16 md:pt-20 md:pb-24">
-        <div className="mx-auto max-w-7xl">
-          <div className="inline-block bg-acid-yellow text-ink border-2 border-ink chunk-shadow-sm px-3 py-1 mb-6 font-display uppercase text-sm">
-            India · Underground · Since 2024
-          </div>
-
-          <h1 className="font-display headline-responsive uppercase text-ink">
-            Cats Can <span className="text-hot-pink ink-stroke">Dance</span>
-          </h1>
-
-          <p className="mt-6 max-w-2xl text-lg md:text-xl text-ink/80 leading-relaxed">
-            Underground electronic music, parties, and culture across India.
-            Discover artists, events, and scenes in Bombay, Bangalore, Goa,
-            Delhi and beyond.
-          </p>
-
-          <div className="mt-10 flex flex-wrap gap-4">
-            <Button asChild size="lg" variant="primary">
-              <Link href="/events">Find a party</Link>
-            </Button>
-            <Button asChild size="lg" variant="accent">
-              <Link href="/artists">Discover artists</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/discover">Explore scenes</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      <Marquee
-        variant="yellow"
-        size="md"
-        items={["WHO WE ARE", "BANGALORE UNDERGROUND", "A CULTURE BRAND", "DANCE · PETS · STREETWEAR"]}
+    <>
+      <JsonLd
+        data={[
+          organizationSchema(),
+          websiteSchema(),
+          { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: HOMEPAGE_FAQ },
+        ]}
       />
+      <main className="bg-background text-foreground">
+        <Nav />
 
-      <section className="px-4 md:px-8 py-16 md:py-24">
-        <div className="mx-auto max-w-7xl">
-          <h2 className="font-display text-4xl md:text-6xl uppercase text-ink mb-2">
-            What's coming up
-          </h2>
-          <p className="text-ink/60 mb-10">
-            Curated by humans. Scored by AI. Real underground only.
+        <Hero>
+          <Suspense fallback={null}>
+            <HeroUrgencyStrip />
+          </Suspense>
+        </Hero>
+
+        {/* Identity strip — one sentence for first-time visitors */}
+        <div className="bg-ink border-b-4 border-ink py-3 px-4">
+          <p className="mx-auto w-full max-w-[1200px] font-display text-cream text-xs md:text-sm uppercase tracking-[0.18em] text-center">
+            Bengaluru underground crew · Dance music episodes · Limited streetwear drops
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="border-2 border-ink chunk-shadow bg-cream p-6 transition-transform duration-[var(--duration-cruise)] ease-[var(--ease-glide)] hover:-translate-x-1 hover:-translate-y-1"
-              >
-                <div className="aspect-[4/3] bg-bubblegum border-2 border-ink mb-4" />
-                <p className="font-display uppercase text-sm text-ink/60">
-                  FRI · 06 JUN · 9PM
-                </p>
-                <h3 className="font-display text-2xl uppercase mt-1">
-                  Episode {i.toString().padStart(2, "0")}
-                </h3>
-                <p className="text-ink/70 mt-2">
-                  Bombay · Warehouse — TBA on RSVP
-                </p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-10">
-            <Button asChild variant="default" size="lg">
-              <Link href="/events">All events →</Link>
-            </Button>
-          </div>
         </div>
-      </section>
 
-      <Marquee
-        variant="pink"
-        size="sm"
-        reverse
-        items={["EPISODE 01", "EPISODE 02", "CATCH US LIVE", "BANGALORE", "RSVP NOW"]}
-      />
+        <CityMarquee />
 
-      <footer className="px-4 md:px-8 py-12 border-t-2 border-ink">
-        <div className="mx-auto max-w-7xl flex flex-wrap items-center justify-between gap-4">
-          <p className="font-display uppercase text-xl">
-            © Cats Can Dance · India
-          </p>
-          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-            <Link href="/for-artists" className="hover:underline">For artists</Link>
-            <Link href="/for-venues" className="hover:underline">For venues</Link>
-            <Link href="/for-investors" className="hover:underline">For investors</Link>
-            <Link href="/legal" className="hover:underline">Legal</Link>
-            <a href="mailto:hi@catscandance.com" className="hover:underline">hi@catscandance.com</a>
-          </nav>
-        </div>
-      </footer>
-    </main>
+        {/* Marquee slot: above-about */}
+        <Marquee
+          bg="bg-acid-yellow"
+          size="lg"
+          items={[
+            "WHO WE ARE",
+            "BANGALORE UNDERGROUND",
+            "A CULTURE BRAND",
+            "DANCE · PETS · STREETWEAR",
+          ]}
+        />
+
+        <About />
+
+        {/* Marquee slot: above-events */}
+        <Marquee
+          bg="bg-orange"
+          size="sm"
+          reverse
+          items={["EPISODE 01", "EPISODE 02", "CATCH US LIVE", "BANGALORE", "RSVP NOW"]}
+        />
+
+        <Suspense fallback={<EventsStripSkeleton />}>
+          <HomeEventsIsland />
+        </Suspense>
+
+        <Footer />
+      </main>
+    </>
   );
 }
