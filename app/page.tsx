@@ -1,19 +1,18 @@
 /**
- * Homepage — direct port of CCD v1's Index.tsx composition.
+ * Homepage — faithful port of CCD v1's Index.tsx
  *
- * Pass 1 (this commit) ports the spine: Nav, Hero, identity strip, CityMarquee,
- * marquee strips, About, EventsStrip, Footer. Dynamic data (next-event urgency
- * strip + events strip) lives in async RSC islands wrapped in <Suspense> so
- * the static shell prerenders cleanly with Cache Components.
+ * Pass 1: Nav, Hero, identity strip, CityMarquee, marquees, About, Events, Footer
+ * Pass 2 (this commit): + DiscoProvider, MoonwalkCat, DiscoBall+Lasers in Hero,
+ *   DiscoButton+DiscoMute+DiscoHint in Nav, SectionReveal wrapping every section,
+ *   SectionDots, ScrollPaw, Stats, EarlyAccess (Server Action), Contact (Server Action),
+ *   platform stats strip, smooth scroll, Confetti.
  *
- * Pass 2 will add: Catbot, MoonwalkCat, DiscoBall + Lasers, SectionDots,
- * SectionReveal wrapper, EarlyAccess, Contact, platform stats strip.
- *
- * Pass 3 will add: CcdxSocialHomeStrip, Videos, Playlist, Drops, Instagram,
- * GenreWheel, ArtistSpotlight, SceneSnapshot.
+ * Pass 3 (next): CcdxSocialHomeStrip, Videos, Playlist, Drops, Instagram,
+ *   GenreWheel, ArtistSpotlight, SceneSnapshot.
  */
 import { Suspense } from "react";
 import { buildMetadata, JsonLd, organizationSchema, websiteSchema } from "@/lib/seo";
+import { HomepageProviders } from "@/components/site/homepage-providers";
 import { Nav } from "@/components/site/nav";
 import { Hero } from "@/components/site/hero";
 import { HeroUrgencyStrip } from "@/components/site/hero-urgency-strip";
@@ -23,6 +22,15 @@ import { About } from "@/components/site/about";
 import { HomeEventsIsland } from "@/components/site/home-events-island";
 import { EventsStripSkeleton } from "@/components/site/events-strip-skeleton";
 import { Footer } from "@/components/site/footer";
+import { SectionReveal } from "@/components/site/section-reveal";
+import { SectionDots } from "@/components/site/section-dots";
+import { MoonwalkCat } from "@/components/site/moonwalk-cat";
+import { ScrollPaw } from "@/components/site/scroll-paw";
+import { Stats } from "@/components/site/stats";
+
+import { Contact } from "@/components/site/contact";
+import { PlatformStatsStrip } from "@/components/site/platform-stats";
+import { EarlyAccessIsland } from "@/components/site/early-access-island";
 
 export const metadata = buildMetadata({
   title: "Cats Can Dance — India's Underground Electronic Music Scene",
@@ -84,7 +92,7 @@ const HOMEPAGE_FAQ = [
   },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
   return (
     <>
       <JsonLd
@@ -94,39 +102,56 @@ export default function HomePage() {
           { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: HOMEPAGE_FAQ },
         ]}
       />
+
+      <HomepageProviders>
+        {/* Fixed chrome */}
+        <SectionDots />
+        <MoonwalkCat />
+        <ScrollPaw />
+
       <main className="bg-background text-foreground">
         <Nav />
 
+        {/* ── Hero — full viewport, electric-blue ── */}
         <Hero>
           <Suspense fallback={null}>
             <HeroUrgencyStrip />
           </Suspense>
         </Hero>
 
-        {/* Identity strip — one sentence for first-time visitors */}
+        {/* ── Identity strip ── */}
         <div className="bg-ink border-b-4 border-ink py-3 px-4">
           <p className="mx-auto w-full max-w-[1200px] font-display text-cream text-xs md:text-sm uppercase tracking-[0.18em] text-center">
             Bengaluru underground crew · Dance music episodes · Limited streetwear drops
           </p>
         </div>
 
+        {/* ── Platform social proof (streams in from DB) ── */}
+        <Suspense fallback={null}>
+          <PlatformStatsStrip />
+        </Suspense>
+
         <CityMarquee />
 
-        {/* Marquee slot: above-about */}
+        {/* ── Marquee: above-about ── */}
         <Marquee
           bg="bg-acid-yellow"
           size="lg"
-          items={[
-            "WHO WE ARE",
-            "BANGALORE UNDERGROUND",
-            "A CULTURE BRAND",
-            "DANCE · PETS · STREETWEAR",
-          ]}
+          items={["WHO WE ARE", "BANGALORE UNDERGROUND", "A CULTURE BRAND", "DANCE · PETS · STREETWEAR"]}
         />
 
-        <About />
+        <SectionReveal>
+          <About />
+        </SectionReveal>
 
-        {/* Marquee slot: above-events */}
+        {/* ── Early Access — email capture is the #1 conversion action ── */}
+        <SectionReveal>
+          <Suspense fallback={null}>
+            <EarlyAccessIsland />
+          </Suspense>
+        </SectionReveal>
+
+        {/* ── Marquee: above-events ── */}
         <Marquee
           bg="bg-orange"
           size="sm"
@@ -134,12 +159,25 @@ export default function HomePage() {
           items={["EPISODE 01", "EPISODE 02", "CATCH US LIVE", "BANGALORE", "RSVP NOW"]}
         />
 
-        <Suspense fallback={<EventsStripSkeleton />}>
-          <HomeEventsIsland />
-        </Suspense>
+        <SectionReveal>
+          <Suspense fallback={<EventsStripSkeleton />}>
+            <HomeEventsIsland />
+          </Suspense>
+        </SectionReveal>
+
+        {/* ── Stats ── */}
+        <SectionReveal>
+          <Stats />
+        </SectionReveal>
+
+        {/* ── Contact ── */}
+        <SectionReveal>
+          <Contact />
+        </SectionReveal>
 
         <Footer />
       </main>
+      </HomepageProviders>
     </>
   );
 }
