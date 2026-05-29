@@ -38,8 +38,9 @@ yarn-error.log*
 # vercel
 .vercel
 
-# drizzle
-drizzle/
+# drizzle — keep migrations under version control, ignore generated meta only
+drizzle/dev/
+drizzle/.cache/
 
 # turbo
 .turbo
