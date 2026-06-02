@@ -18,8 +18,8 @@ import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import { getEventBySlug, getRelatedEvents } from "@/lib/db/queries";
 import { db } from "@/lib/db/client";
-import { eq } from "drizzle-orm";
-import { events } from "@/lib/db/schema";
+import { eq, ne } from "drizzle-orm";
+import { events, type EventLineup, type Artist } from "@/lib/db/schema";
 import { Nav } from "@/components/site/nav";
 import { Footer } from "@/components/site/footer";
 import { Marquee } from "@/components/site/marquee";
@@ -29,14 +29,12 @@ import { EventVenueCard } from "@/components/site/event-venue-card";
 import { EventLineupCard } from "@/components/site/event-lineup-card";
 import { EventDetailClient } from "./event-detail-client";
 
-export const revalidate = 60;
-
 export async function generateStaticParams() {
   const allEvents = await db.query.events.findMany({
     columns: { slug: true },
-    where: (e, { ne }) => ne(e.status, "draft"),
+    where: ne(events.status, "draft"),
   });
-  return allEvents.map((e) => ({ slug: e.slug }));
+  return allEvents.map((e: { slug: string }) => ({ slug: e.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -98,7 +96,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
       },
     },
     image: event.posterUrl ? [event.posterUrl] : undefined,
-    performer: (event.lineup ?? []).map((l) => ({
+    performer: (event.lineup ?? []).map((l: any) => ({
       "@type": "PerformingGroup",
       name: l.artist?.name ?? "TBA",
     })),
@@ -216,7 +214,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
                     city={event.city}
                     lineup={
                       event.lineup?.length
-                        ? event.lineup.map((l) => l.artist?.name ?? "TBA").join(" · ")
+                        ? event.lineup.map((l: any) => l.artist?.name ?? "TBA").join(" · ")
                         : undefined
                     }
                   />
@@ -323,20 +321,21 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
                   <>
                     <p className="font-display text-ink/50 text-xs tracking-widest mb-3">/ SUPPORT</p>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                      {supports.map((l, i) => (
-                        <EventLineupCard
-                          key={`${l.artistId}-${i}`}
-                          artist={{
-                            name: l.artist?.name ?? "TBA",
-                            slug: l.artist?.slug ?? null,
-                            role: l.role,
-                            note: l.note,
-                            bio: l.artist?.bio ?? null,
-                            photoUrl: l.artist?.photoUrl ?? null,
-                            socials: l.artist?.socials as any,
-                          }}
-                          index={i}
-                        />
+                      {supports.map((l: any, i: number) => (
+                        <div key={`${l.artistId}-${i}`}>
+                          <EventLineupCard
+                            artist={{
+                              name: l.artist?.name ?? "TBA",
+                              slug: l.artist?.slug ?? null,
+                              role: l.role,
+                              note: l.note,
+                              bio: l.artist?.bio ?? null,
+                              photoUrl: l.artist?.photoUrl ?? null,
+                              socials: l.artist?.socials as any,
+                            }}
+                            index={i}
+                          />
+                        </div>
                       ))}
                     </div>
                   </>
@@ -422,7 +421,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
                 YOU MIGHT ALSO LIKE
               </h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {related.map((e) => (
+                {related.map((e: any) => (
                   <Link
                     key={e.slug}
                     href={`/events/${e.slug}`}

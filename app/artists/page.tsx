@@ -19,8 +19,6 @@ import { PageHero } from "@/components/site/page-hero";
 import { Marquee } from "@/components/site/marquee";
 import { ArtistsClient } from "./artists-client";
 
-export const revalidate = 300;
-
 export const metadata = buildMetadata({
   title: "Artists — Cats Can Dance | India's Electronic Music Directory",
   description:
@@ -32,7 +30,7 @@ export default async function ArtistsPage() {
   // Fetch all artists server-side (up to 200) — client filters in memory
   const artists = await listArtists({ limit: 200 });
 
-  const serialised = artists.map((a) => ({
+  const serialised = artists.map((a: typeof artists[number]) => ({
     id: a.id,
     slug: a.slug,
     name: a.name,

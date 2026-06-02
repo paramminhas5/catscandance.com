@@ -21,11 +21,9 @@ import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { ArtistDetailClient } from "./artist-detail-client";
 import type { Socials } from "@/lib/db/schema";
 
-export const revalidate = 300;
-
 export async function generateStaticParams() {
   const artists = await listArtists({ limit: 200 });
-  return artists.map((a) => ({ slug: a.slug }));
+  return artists.map((a: { slug: string }) => ({ slug: a.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -65,7 +63,7 @@ export default async function ArtistDetailPage({
 
   // Build appearances from lineups join
   const appearances = (artist.lineups ?? [])
-    .map((l) => ({
+    .map((l: any) => ({
       eventId: l.eventId,
       eventTitle: l.event?.title ?? "",
       eventSlug: l.event?.slug ?? "",
@@ -75,7 +73,7 @@ export default async function ArtistDetailPage({
       role: l.role,
       note: l.note,
     }))
-    .sort((a, b) => {
+    .sort((a: { startsAt: string | null }, b: { startsAt: string | null }) => {
       if (!a.startsAt && !b.startsAt) return 0;
       if (!a.startsAt) return 1;
       if (!b.startsAt) return -1;
@@ -83,7 +81,7 @@ export default async function ArtistDetailPage({
     });
 
   const upcomingGigs = appearances.filter(
-    (a) => a.startsAt && new Date(a.startsAt) > new Date()
+    (a: { startsAt: string | null }) => a.startsAt && new Date(a.startsAt) > new Date()
   );
 
   const audioEmbeds = (artist.audioEmbeds ?? []) as {
@@ -102,8 +100,8 @@ export default async function ArtistDetailPage({
     url: `https://catscandance.com/artists/${slug}`,
     sameAs: [
       socials.instagram ? `https://instagram.com/${socials.instagram.replace("@", "")}` : null,
-      socials.soundcloud ?? null,
-      socials.spotify ?? null,
+      (socials as any).soundcloud ?? null,
+      (socials as any).spotify ?? null,
     ].filter(Boolean),
   };
 
@@ -170,7 +168,7 @@ export default async function ArtistDetailPage({
                     ✦ FEATURED
                   </span>
                 )}
-                {(artist.genres ?? []).slice(0, 3).map((g) => (
+                {(artist.genres ?? []).slice(0, 3).map((g: string) => (
                   <span key={g} className="inline-block bg-ink text-cream font-display text-xs px-3 py-1 border-2 border-cream/30">
                     {g.toUpperCase()}
                   </span>
@@ -226,7 +224,7 @@ export default async function ArtistDetailPage({
           bg="bg-acid-yellow"
           items={[
             artist.name.toUpperCase(),
-            ...(artist.genres ?? []).map((g) => g.toUpperCase()),
+            ...(artist.genres ?? []).map((g: string) => g.toUpperCase()),
             artist.primaryCity?.toUpperCase() ?? "INDIA",
             "CCD ARTIST",
           ]}
