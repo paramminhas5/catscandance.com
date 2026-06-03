@@ -2,8 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  // Partial Prerendering / Cache Components — static shell + dynamic islands.
-  cacheComponents: true,
   experimental: {},
   images: {
     remotePatterns: [

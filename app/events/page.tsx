@@ -25,6 +25,8 @@ export const metadata = buildMetadata({
   path: "/events",
 });
 
+export const dynamic = "force-dynamic";
+
 async function getAllEvents() {
   const [upcoming, past] = await Promise.all([
     db.query.events.findMany({

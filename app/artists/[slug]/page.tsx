@@ -13,7 +13,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
-import { getArtistBySlug, listArtists } from "@/lib/db/queries";
+import { getArtistBySlug } from "@/lib/db/queries";
 import { Nav } from "@/components/site/nav";
 import { Footer } from "@/components/site/footer";
 import { Marquee } from "@/components/site/marquee";
@@ -21,10 +21,8 @@ import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { ArtistDetailClient } from "./artist-detail-client";
 import type { Socials } from "@/lib/db/schema";
 
-export async function generateStaticParams() {
-  const artists = await listArtists({ limit: 200 });
-  return artists.map((a: { slug: string }) => ({ slug: a.slug }));
-}
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
