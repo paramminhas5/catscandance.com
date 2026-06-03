@@ -1,71 +1,82 @@
-"use client";
-import { useRef, useState } from "react";
-import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
+/**
+ * Stats — async Server Component with live DB counts
+ * Displays upcoming events, artists, cities, RSVPs with Suspense skeleton
+ * Phase 8: Replace hardcoded numbers with live DB queries
+ */
+import { Suspense } from "react";
+import { db } from "@/lib/db/client";
+import { events, artists, signups } from "@/lib/db/schema";
+import { sql, like } from "drizzle-orm";
 
-const STATS = [
-  {
-    target: 1_000_000,
-    suffix: "+",
-    label: "PAWS",
-    color: "bg-acid-yellow",
-    display: (n: number) => (n >= 1_000_000 ? "1M" : `${Math.round(n / 1000)}K`),
-  },
-  {
-    target: 50,
-    suffix: "",
-    label: "CITIES",
-    color: "bg-lime",
-    display: (n: number) => `${Math.round(n)}`,
-  },
-  {
-    target: 12,
-    suffix: "",
-    label: "DROPS",
-    color: "bg-orange",
-    display: (n: number) => `${Math.round(n)}`,
-  },
-] as const;
+type Stat = {
+  value: number | string;
+  label: string;
+  bg: string;
+  text: string;
+};
 
-function StatCard({
-  s,
-  i,
-  progress,
-}: {
-  s: (typeof STATS)[number];
-  i: number;
-  progress: ReturnType<typeof useScroll>["scrollYProgress"];
-}) {
-  const [val, setVal] = useState(0);
-  useMotionValueEvent(progress, "change", (v) => {
-    setVal(Math.min(1, Math.max(0, v)) * s.target);
-  });
-  const y = useTransform(progress, [0, 1], [80 + i * 20, -20 - i * 10]);
+async function LiveStats() {
+  const [
+    upcomingRows,
+    artistRows,
+    cityRows,
+    rsvpRows,
+  ] = await Promise.all([
+    db.select({ upcomingCount: sql<number>`count(*)::int` })
+      .from(events)
+      .where(sql`${events.status} IN ('upcoming','live')`),
+    db.select({ artistCount: sql<number>`count(*)::int` }).from(artists),
+    db.select({ cityCount: sql<number>`count(distinct ${events.city})::int` }).from(events),
+    db.select({ rsvpCount: sql<number>`count(*)::int` })
+      .from(signups)
+      .where(like(signups.tag, "event:%")),
+  ]);
+
+  const upcomingCount = upcomingRows[0]?.upcomingCount ?? 0;
+  const artistCount = artistRows[0]?.artistCount ?? 0;
+  const cityCount = cityRows[0]?.cityCount ?? 0;
+  const rsvpCount = rsvpRows[0]?.rsvpCount ?? 0;
+
+  const STATS: Stat[] = [
+    { value: upcomingCount, label: "UPCOMING SHOWS", bg: "bg-magenta", text: "text-cream" },
+    { value: `${artistCount}+`, label: "ARTISTS", bg: "bg-acid-yellow", text: "text-ink" },
+    { value: cityCount, label: "CITIES", bg: "bg-electric-blue", text: "text-cream" },
+    { value: `${rsvpCount}+`, label: "RSVPS", bg: "bg-orange", text: "text-ink" },
+  ];
 
   return (
-    <motion.div
-      style={{ y }}
-      className={`${s.color} border-4 border-ink rounded-3xl p-8 chunk-shadow-lg text-center`}
-    >
-      <div className="font-display text-6xl md:text-7xl text-ink">
-        {s.display(val)}
-        {s.suffix}
-      </div>
-      <div className="font-display text-2xl md:text-3xl text-ink mt-2">{s.label}</div>
-    </motion.div>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {STATS.map((s) => (
+        <div key={s.label} className={`border-4 border-ink chunk-shadow p-6 ${s.bg}`}>
+          <p className={`font-display text-4xl md:text-5xl leading-none mb-1 ${s.text}`}>
+            {s.value}
+          </p>
+          <p className={`font-display text-xs uppercase tracking-widest ${s.text} opacity-60`}>
+            {s.label}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function StatsSkeleton() {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {["bg-magenta", "bg-acid-yellow", "bg-electric-blue", "bg-orange"].map((bg) => (
+        <div key={bg} className={`border-4 border-ink chunk-shadow p-6 ${bg} animate-pulse`}>
+          <div className="h-10 bg-black/10 w-16 mb-2" />
+          <div className="h-3 bg-black/10 w-24" />
+        </div>
+      ))}
+    </div>
   );
 }
 
 export function Stats() {
-  const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-
   return (
-    <section ref={ref} className="bg-magenta border-b-4 border-ink py-20 md:py-28">
-      <div className="mx-auto w-full max-w-[1200px] px-4 md:px-8 grid sm:grid-cols-3 gap-6">
-        {STATS.map((s, i) => (
-          <StatCard key={s.label} s={s} i={i} progress={scrollYProgress} />
-        ))}
-      </div>
-    </section>
+    <Suspense fallback={<StatsSkeleton />}>
+      <LiveStats />
+    </Suspense>
   );
 }
