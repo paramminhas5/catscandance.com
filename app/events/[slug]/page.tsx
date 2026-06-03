@@ -18,7 +18,7 @@ import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import { getEventBySlug, getRelatedEvents } from "@/lib/db/queries";
 import { db } from "@/lib/db/client";
-import { eq, ne } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { events, type EventLineup, type Artist } from "@/lib/db/schema";
 import { Nav } from "@/components/site/nav";
 import { Footer } from "@/components/site/footer";
@@ -29,17 +29,8 @@ import { EventVenueCard } from "@/components/site/event-venue-card";
 import { EventLineupCard } from "@/components/site/event-lineup-card";
 import { EventDetailClient } from "./event-detail-client";
 
-export async function generateStaticParams() {
-  try {
-    const allEvents = await db.query.events.findMany({
-      columns: { slug: true },
-      where: ne(events.status, "draft"),
-    });
-    return allEvents.map((e: { slug: string }) => ({ slug: e.slug }));
-  } catch {
-    return [];
-  }
-}
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
