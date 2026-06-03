@@ -22,8 +22,12 @@ import { ArtistDetailClient } from "./artist-detail-client";
 import type { Socials } from "@/lib/db/schema";
 
 export async function generateStaticParams() {
-  const artists = await listArtists({ limit: 200 });
-  return artists.map((a: { slug: string }) => ({ slug: a.slug }));
+  try {
+    const artists = await listArtists({ limit: 200 });
+    return artists.map((a: { slug: string }) => ({ slug: a.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

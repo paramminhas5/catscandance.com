@@ -30,11 +30,15 @@ import { EventLineupCard } from "@/components/site/event-lineup-card";
 import { EventDetailClient } from "./event-detail-client";
 
 export async function generateStaticParams() {
-  const allEvents = await db.query.events.findMany({
-    columns: { slug: true },
-    where: ne(events.status, "draft"),
-  });
-  return allEvents.map((e: { slug: string }) => ({ slug: e.slug }));
+  try {
+    const allEvents = await db.query.events.findMany({
+      columns: { slug: true },
+      where: ne(events.status, "draft"),
+    });
+    return allEvents.map((e: { slug: string }) => ({ slug: e.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {

@@ -26,6 +26,8 @@ export const metadata = buildMetadata({
   path: "/artists",
 });
 
+export const dynamic = "force-dynamic";
+
 export default async function ArtistsPage() {
   // Fetch all artists server-side (up to 200) — client filters in memory
   const artists = await listArtists({ limit: 200 });
