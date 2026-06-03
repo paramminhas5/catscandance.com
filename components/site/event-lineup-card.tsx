@@ -23,7 +23,7 @@ const PALETTES = [
 ];
 
 export function EventLineupCard({ artist, index }: Props) {
-  const palette = PALETTES[index % PALETTES.length];
+  const palette = PALETTES[index % PALETTES.length]!;
   const isTba = artist.name.trim().toUpperCase() === "TBA";
 
   const inner = (

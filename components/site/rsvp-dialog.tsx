@@ -31,8 +31,8 @@ function buildCalendarUrl(title: string, date: string, venue?: string): string {
     } else {
       const m = date.match(/([A-Za-z]{3})\s+(\d{1,2}),?\s+(\d{4})/);
       if (m) {
-        const mo = monthMap[m[1].toLowerCase()];
-        if (mo) startDate = `${m[3]}${mo}${String(parseInt(m[2])).padStart(2, "0")}`;
+        const mo = monthMap[m[1]!.toLowerCase()];
+        if (mo) startDate = `${m[3]!}${mo}${String(parseInt(m[2]!)).padStart(2, "0")}`;
       }
     }
   } catch { /* skip */ }
