@@ -263,6 +263,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
         {event.lineup && event.lineup.length > 0 && (() => {
           const sorted = [...event.lineup].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
           const headliner = sorted.find((l) => l.role === "headliner") ?? sorted[0];
+          if (!headliner) return null;
           const supports = sorted.filter((l) => l !== headliner);
           return (
             <section className="bg-cream border-y-4 border-ink py-12 md:py-20">
