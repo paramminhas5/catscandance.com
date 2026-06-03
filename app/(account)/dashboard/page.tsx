@@ -13,6 +13,8 @@ import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { Footer } from "@/components/site/footer";
 import { Calendar, User, Music, ArrowRight } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = buildMetadata({
   title: "Dashboard — Cats Can Dance",
   description: "Your CCD account dashboard.",

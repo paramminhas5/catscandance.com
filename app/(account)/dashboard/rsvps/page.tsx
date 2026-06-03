@@ -11,6 +11,8 @@ import { buildMetadata } from "@/lib/seo";
 import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { Calendar, MapPin } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = buildMetadata({
   title: "My RSVPs — Cats Can Dance",
   description: "Your RSVP history.",

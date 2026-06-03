@@ -32,6 +32,8 @@ import { Contact } from "@/components/site/contact";
 import { PlatformStatsStrip } from "@/components/site/platform-stats";
 import { EarlyAccessIsland } from "@/components/site/early-access-island";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = buildMetadata({
   title: "Cats Can Dance — India's Underground Electronic Music Scene",
   description:

@@ -11,6 +11,8 @@ import { Marquee } from "@/components/site/marquee";
 import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { TagFilterClient } from "./tag-filter-client";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = buildMetadata({
   title: "Blog — Cats Can Dance | Underground Music Writing",
   description:

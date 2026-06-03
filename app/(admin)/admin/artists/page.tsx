@@ -6,6 +6,8 @@ import { db } from "@/lib/db/client";
 import { artists } from "@/lib/db/schema";
 import { ArtistToggles } from "./artist-toggles";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = buildMetadata({
   title: "Artists Admin — Cats Can Dance",
   description: "Manage CCD artists.",

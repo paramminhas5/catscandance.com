@@ -7,6 +7,8 @@ import { db } from "@/lib/db/client";
 import { events, artists, signups, user, bookings } from "@/lib/db/schema";
 import { eq, like, sql, desc } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = buildMetadata({
   title: "Admin — Cats Can Dance",
   description: "CCD admin dashboard.",

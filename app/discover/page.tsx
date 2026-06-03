@@ -15,6 +15,8 @@ import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { SearchClient } from "./search-client";
 import { Music, MapPin, Globe } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = buildMetadata({
   title: "Discover — Cats Can Dance | Indian Electronic Music Scenes",
   description:

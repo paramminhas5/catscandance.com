@@ -7,6 +7,8 @@ import { events } from "@/lib/db/schema";
 import { desc } from "drizzle-orm";
 import { EventStatusToggle } from "./event-status-toggle";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = buildMetadata({
   title: "Events Admin — Cats Can Dance",
   description: "Manage CCD events.",

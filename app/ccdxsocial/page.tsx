@@ -12,6 +12,8 @@ import { Marquee } from "@/components/site/marquee";
 import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { Calendar, MapPin } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = buildMetadata({
   title: "CCD × SOCIAL — Cats Can Dance | India's First Pet Lifestyle Dance Series",
   description:

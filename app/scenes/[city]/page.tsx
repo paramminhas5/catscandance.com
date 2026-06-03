@@ -13,6 +13,8 @@ import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { Marquee } from "@/components/site/marquee";
 import { MapPin, Music, Calendar } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 // ── Static params ────────────────────────────────────────────────────────────
 const INDIA_SLUGS = ["bangalore", "bombay", "delhi", "goa", "hyderabad", "pune"] as const;
 const GLOBAL_SLUGS = ["detroit-techno", "chicago-house", "london-jungle", "berlin-techno", "goa-trance"] as const;
