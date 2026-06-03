@@ -77,7 +77,7 @@ function BookingForm({ artist }: { artist: ArtistData }) {
 
   const set = (k: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-      setForm((f) => ({ ...f, [k]: e.target.value }));
+      setForm((f: typeof form) => ({ ...f, [k]: e.target.value }));
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -261,7 +261,7 @@ export function ArtistDetailClient({ artist, appearances, upcomingGigs }: Props)
                 </p>
                 {hasBioOverflow && (
                   <button
-                    onClick={() => setExpandedBio((v) => !v)}
+                    onClick={() => setExpandedBio((v: boolean) => !v)}
                     className="mt-3 font-display text-sm text-magenta hover:underline"
                   >
                     {expandedBio ? "READ LESS ↑" : "READ MORE ↓"}
@@ -306,7 +306,9 @@ export function ArtistDetailClient({ artist, appearances, upcomingGigs }: Props)
               <div>
                 <p className="font-display text-magenta text-base md:text-lg mb-3">/ UPCOMING GIGS</p>
                 <div className="border-4 border-ink">
-                  {upcomingGigs.slice(0, 5).map((g) => <GigRow key={g.eventId} g={g} />)}
+                  {upcomingGigs.slice(0, 5).map((g: Appearance) => (
+                    <div key={g.eventId}><GigRow g={g} /></div>
+                  ))}
                 </div>
                 {upcomingGigs.length > 5 && (
                   <button
@@ -363,7 +365,7 @@ export function ArtistDetailClient({ artist, appearances, upcomingGigs }: Props)
               {years.length > 1 && (
                 <select
                   value={yearFilter}
-                  onChange={(e) => setYearFilter(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setYearFilter(e.target.value)}
                   className="px-3 py-2 border-4 border-ink bg-cream font-display text-sm text-ink focus:outline-none"
                 >
                   <option value="all">ALL YEARS</option>
@@ -377,7 +379,9 @@ export function ArtistDetailClient({ artist, appearances, upcomingGigs }: Props)
               <p className="text-ink/50 font-medium">No gigs found for this filter.</p>
             ) : (
               <div className="border-4 border-ink">
-                {filteredAppearances.map((g) => <GigRow key={`${g.eventId}-${g.role}`} g={g} />)}
+                {filteredAppearances.map((g: Appearance) => (
+                  <div key={`${g.eventId}-${g.role}`}><GigRow g={g} /></div>
+                ))}
               </div>
             )}
           </div>

@@ -9,7 +9,7 @@
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
 import { db } from "@/lib/db/client";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, asc, desc } from "drizzle-orm";
 import { events } from "@/lib/db/schema";
 import { Nav } from "@/components/site/nav";
 import { Footer } from "@/components/site/footer";
@@ -17,8 +17,6 @@ import { PageHero } from "@/components/site/page-hero";
 import { Marquee } from "@/components/site/marquee";
 import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { EventsRsvpClient } from "./events-rsvp-client";
-
-export const revalidate = 60;
 
 export const metadata = buildMetadata({
   title: "Events — Cats Can Dance | Underground Dance Music in Bangalore",
@@ -31,12 +29,12 @@ async function getAllEvents() {
   const [upcoming, past] = await Promise.all([
     db.query.events.findMany({
       where: inArray(events.status, ["upcoming", "live"]),
-      orderBy: (e, { asc }) => [asc(e.sortOrder), asc(e.startsAt)],
+      orderBy: [asc(events.sortOrder), asc(events.startsAt)],
       with: { venue: true },
     }),
     db.query.events.findMany({
       where: eq(events.status, "past"),
-      orderBy: (e, { desc }) => [desc(e.startsAt)],
+      orderBy: [desc(events.startsAt)],
       with: { venue: true },
       limit: 12,
     }),
@@ -66,7 +64,7 @@ export default async function EventsPage() {
   );
   const nextEvent = upcoming[0] ?? null;
 
-  const jsonLd = upcoming.map((e) => ({
+  const jsonLd = upcoming.map((e: typeof upcoming[number]) => ({
     "@context": "https://schema.org",
     "@type": "MusicEvent",
     name: `Cats Can Dance — ${e.title}`,
@@ -231,7 +229,7 @@ export default async function EventsPage() {
                 PAST EPISODES.
               </h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {past.map((e) => (
+                {past.map((e: typeof past[number]) => (
                   <Link
                     key={e.slug}
                     href={`/events/${e.slug}`}

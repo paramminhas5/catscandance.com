@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
-import { bookings } from "@/lib/db/schema";
+import { bookings, artists } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     // Resolve artist id from slug
     const artist = await db.query.artists.findFirst({
-      where: (a, { eq }) => eq(a.slug, artist_slug),
+      where: eq(artists.slug, artist_slug),
       columns: { id: true },
     });
 

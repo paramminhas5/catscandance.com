@@ -19,7 +19,7 @@ type Artist = {
 
 type SortMode = "az" | "city" | "genre";
 
-const CARD_ACCENTS = [
+const CARD_ACCENTS: string[] = [
   "bg-acid-yellow text-ink",
   "bg-electric-blue text-cream",
   "bg-magenta text-cream",
@@ -37,7 +37,7 @@ export function ArtistsClient({ artists }: { artists: Artist[] }) {
   const allCities = useMemo(() => {
     const s = new Set<string>();
     for (const a of artists) {
-      if (a.primaryCity) s.add(a.primaryCity.split(",")[0].trim());
+      if (a.primaryCity) s.add((a.primaryCity.split(",")[0] ?? a.primaryCity).trim());
     }
     return Array.from(s).sort();
   }, [artists]);
@@ -49,7 +49,7 @@ export function ArtistsClient({ artists }: { artists: Artist[] }) {
   }, [artists]);
 
   const toggleGenre = (g: string) => {
-    setActiveGenres((prev) => {
+    setActiveGenres((prev: Set<string>) => {
       const next = new Set(prev);
       next.has(g) ? next.delete(g) : next.add(g);
       return next;
@@ -58,10 +58,10 @@ export function ArtistsClient({ artists }: { artists: Artist[] }) {
 
   const filtered = useMemo(() => {
     const ql = q.toLowerCase().trim();
-    let rows = artists.filter((a) => {
+    let rows = artists.filter((a: Artist) => {
       if (city !== "All" && !a.primaryCity.toLowerCase().includes(city.toLowerCase()))
         return false;
-      if (activeGenres.size > 0 && !a.genres.some((g) => activeGenres.has(g))) return false;
+      if (activeGenres.size > 0 && !a.genres.some((g: string) => activeGenres.has(g))) return false;
       if (featuredOnly && !a.isFeatured) return false;
       if (!ql) return true;
       return (
@@ -74,14 +74,14 @@ export function ArtistsClient({ artists }: { artists: Artist[] }) {
 
     if (sort === "city")
       rows = [...rows].sort(
-        (a, b) => a.primaryCity.localeCompare(b.primaryCity) || a.name.localeCompare(b.name)
+        (a: Artist, b: Artist) => a.primaryCity.localeCompare(b.primaryCity) || a.name.localeCompare(b.name)
       );
     else if (sort === "genre")
       rows = [...rows].sort(
-        (a, b) =>
+        (a: Artist, b: Artist) =>
           (a.genres[0] ?? "").localeCompare(b.genres[0] ?? "") || a.name.localeCompare(b.name)
       );
-    else rows = [...rows].sort((a, b) => a.name.localeCompare(b.name));
+    else rows = [...rows].sort((a: Artist, b: Artist) => a.name.localeCompare(b.name));
 
     return rows;
   }, [artists, q, city, activeGenres, sort, featuredOnly]);
@@ -105,7 +105,7 @@ export function ArtistsClient({ artists }: { artists: Artist[] }) {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/40" />
               <input
                 value={q}
-                onChange={(e) => setQ(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQ(e.target.value)}
                 placeholder="Search artists…"
                 className="w-full pl-9 pr-8 py-2 border-4 border-ink bg-cream font-sans text-ink placeholder:text-ink/40 focus:outline-none focus:bg-acid-yellow/20 transition-colors"
               />
@@ -122,11 +122,11 @@ export function ArtistsClient({ artists }: { artists: Artist[] }) {
             {/* City */}
             <select
               value={city}
-              onChange={(e) => setCity(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCity(e.target.value)}
               className="px-3 py-2 border-4 border-ink bg-cream font-display text-sm text-ink focus:outline-none focus:bg-acid-yellow/20 transition-colors"
             >
               <option value="All">ALL CITIES</option>
-              {allCities.map((c) => (
+              {allCities.map((c: string) => (
                 <option key={c} value={c}>
                   {c.toUpperCase()}
                 </option>
@@ -136,7 +136,7 @@ export function ArtistsClient({ artists }: { artists: Artist[] }) {
             {/* Sort */}
             <select
               value={sort}
-              onChange={(e) => setSort(e.target.value as SortMode)}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSort(e.target.value as SortMode)}
               className="px-3 py-2 border-4 border-ink bg-cream font-display text-sm text-ink focus:outline-none focus:bg-acid-yellow/20 transition-colors"
             >
               <option value="az">A → Z</option>
@@ -146,7 +146,7 @@ export function ArtistsClient({ artists }: { artists: Artist[] }) {
 
             {/* Featured toggle */}
             <button
-              onClick={() => setFeaturedOnly((b) => !b)}
+              onClick={() => setFeaturedOnly((b: boolean) => !b)}
               className={`px-3 py-2 border-4 border-ink font-display text-xs uppercase whitespace-nowrap transition-colors ${
                 featuredOnly ? "bg-magenta text-cream" : "bg-transparent text-ink hover:bg-acid-yellow"
               }`}
@@ -158,7 +158,7 @@ export function ArtistsClient({ artists }: { artists: Artist[] }) {
           {/* Genre pills */}
           {allGenres.length > 0 && (
             <div className="flex items-center gap-2 mt-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden">
-              {allGenres.map((g) => {
+              {allGenres.map((g: string) => {
                 const active = activeGenres.has(g);
                 return (
                   <button
@@ -223,10 +223,10 @@ export function ArtistsClient({ artists }: { artists: Artist[] }) {
               <div className="space-y-4">
                 {(() => {
                   // Separate the first featured artist (if any) from the rest
-                  const featuredIdx = filtered.findIndex((a) => a.isFeatured);
+                  const featuredIdx = filtered.findIndex((a: Artist) => a.isFeatured);
                   const hero = featuredIdx >= 0 ? filtered[featuredIdx] : null;
                   const rest = hero
-                    ? filtered.filter((_, i) => i !== featuredIdx)
+                    ? filtered.filter((_: Artist, i: number) => i !== featuredIdx)
                     : filtered;
 
                   return (
@@ -269,7 +269,7 @@ export function ArtistsClient({ artists }: { artists: Artist[] }) {
                             )}
                             {hero.genres.length > 0 && (
                               <div className="flex flex-wrap gap-2 mb-4">
-                                {hero.genres.slice(0, 4).map((g) => (
+                                {hero.genres.slice(0, 4).map((g: string) => (
                                   <span key={g} className="text-[10px] px-2 py-1 font-display border-2 border-cream/30 text-cream/70 uppercase">
                                     {g}
                                   </span>
@@ -291,8 +291,8 @@ export function ArtistsClient({ artists }: { artists: Artist[] }) {
                       {/* Uniform 4-col grid for the rest */}
                       {rest.length > 0 && (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                          {rest.map((a, i) => {
-                            const accent = CARD_ACCENTS[i % CARD_ACCENTS.length];
+                          {rest.map((a: Artist, i: number) => {
+                            const accent: string = CARD_ACCENTS[i % CARD_ACCENTS.length] ?? "bg-acid-yellow text-ink";
                             const textIsInk = accent.includes("text-ink");
                             return (
                               <Link
@@ -328,7 +328,7 @@ export function ArtistsClient({ artists }: { artists: Artist[] }) {
                                   )}
                                   {a.genres.length > 0 && (
                                     <div className="flex flex-wrap gap-1 mt-1">
-                                      {a.genres.slice(0, 2).map((g) => (
+                                      {a.genres.slice(0, 2).map((g: string) => (
                                         <span key={g} className="text-[10px] px-1.5 py-0.5 font-display border border-ink bg-acid-yellow text-ink">
                                           {g.toUpperCase()}
                                         </span>
