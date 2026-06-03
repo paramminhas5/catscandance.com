@@ -12,6 +12,8 @@ import { Marquee } from "@/components/site/marquee";
 import { Breadcrumbs } from "@/components/site/breadcrumbs";
 import { BookArtistClient } from "./book-artist-client";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = buildMetadata({
   title: "Book an Artist — Cats Can Dance",
   description:

@@ -14,10 +14,7 @@ import { JsonLd } from "@/lib/seo";
 import { ShareButton } from "../share-button";
 import { absoluteUrl } from "@/lib/utils";
 
-export async function generateStaticParams() {
-  const posts = await listPublishedPosts(100);
-  return posts.map((p) => ({ slug: p.slug }));
-}
+export const dynamic = "force-dynamic";
 
 type Props = { params: Promise<{ slug: string }> };
 
